@@ -1,10 +1,10 @@
-// server.js
 import mongoose from 'mongoose';
 import dbConfig from './config/db.js';
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import taskRoutes from './routes/taskRoutes.js'; // Import your task routes
+import taskRoutes from './routes/taskRoutes.js';
+import userRoutes from './routes/userRoutes.js';
 
 dotenv.config();
 
@@ -12,8 +12,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Use the task routes
-app.use('/api', taskRoutes); // You can prefix your routes with '/api' or any other base path
+// Use the task routes (assuming you want them under /api)
+app.use('/api', taskRoutes);
+
+// Use the user/auth routes under /api/auth
+app.use('/api/auth', userRoutes);
 
 app.get("/", (req, res) => {
   res.send("Hello World");
@@ -24,7 +27,12 @@ app.listen(process.env.PORT, () => {
 });
 
 async function start() {
-  await mongoose.connect(dbConfig.primary.url, dbConfig.primary.options);
-  console.log("DB Connected");
+  try {
+    await mongoose.connect(dbConfig.primary.url, dbConfig.primary.options);
+    console.log("DB Connected");
+  } catch (error) {
+    console.error("DB Connection Error:", error);
+    process.exit(1);
+  }
 }
 start();
