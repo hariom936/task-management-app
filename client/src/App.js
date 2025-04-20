@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
-import TaskList from './pages/TaskList';
+import TaskList from './components/TaskList';
 import TaskForm from './components/TaskForm'; // Import TaskForm for testing
 
 function App() {
