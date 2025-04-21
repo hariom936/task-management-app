@@ -1,13 +1,23 @@
+// components/TaskList.js
 import React, { useState, useEffect, useCallback } from 'react';
 import taskService from '../services/taskService';
 import TaskForm from './TaskForm';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import authService from '../services/authService'; // Import authService
 
 const TaskList = () => {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate(); // Initialize navigate
+
+  // State for controlling the "Add New Task" form
   const [isAdding, setIsAdding] = useState(false);
+
+  // State for managing the task being edited
   const [editingTask, setEditingTask] = useState(null);
+
+  // State for controlling the delete confirmation modal
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [taskToDeleteId, setTaskToDeleteId] = useState(null);
 
@@ -16,20 +26,28 @@ const TaskList = () => {
     setError(null);
     try {
       const data = await taskService.getTasks();
-      console.log('Data received from taskService:', data); // Debugging
       setTasks(data);
-      console.log('Tasks state after setting:', tasks); // Debugging
     } catch (err) {
-      setError('Failed to load tasks. Please try again.');
-      console.error('Fetch tasks error:', err);
+      if (err.response && err.response.status === 401) {
+        console.error('Unauthorized access. Redirecting to login.');
+        navigate('/login'); // Redirect to login on 401
+      } else {
+        setError('Failed to load tasks. Please try again.');
+        console.error('Fetch tasks error:', err);
+      }
     } finally {
       setLoading(false);
     }
-  }, [taskService, setTasks]); // Added setTasks as a dependency
+  }, [taskService, navigate, setTasks]);
 
   useEffect(() => {
+    // Check for token on component mount
+    if (!authService.getToken()) {
+      navigate('/login');
+      return; // Prevent further execution if not logged in
+    }
     fetchTasks();
-  }, [fetchTasks]);
+  }, [fetchTasks, navigate]); // Add navigate as a dependency
 
   const handleAddTask = () => {
     setIsAdding(true);

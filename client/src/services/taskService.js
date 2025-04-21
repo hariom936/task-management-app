@@ -1,23 +1,21 @@
+// services/taskService.js
 import axios from 'axios';
+import authService from './authService'; // Import authService to get the token
 
 const API_BASE_URL = 'http://localhost:5000/api/tasks';
-
-const getAuthHeaders = () => {
-  // In a real application, you would get the token from local storage or a context
-  const token = localStorage.getItem('authToken');
-  return token ? { Authorization: `Bearer ${token}` } : {};
-};
 
 const taskService = {
   async getTasks() {
     try {
-      const response = await axios.get(API_BASE_URL, { headers: getAuthHeaders() });
+      const token = authService.getToken();
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      const response = await axios.get(API_BASE_URL, { headers });
       console.log('API Response (getTasks):', response.data); // Debugging
       return response.data;
     } catch (error) {
       if (error.response && error.response.status === 401) {
-        console.error('Unauthorized access. Redirecting to login.');
-        // window.location.href = '/login'; // Uncomment to redirect
+        console.error('Unauthorized access.');
+        // Handle unauthorized error, maybe redirect to login using navigate from a component
         throw error;
       }
       console.error('Error fetching tasks:', error);
@@ -27,7 +25,9 @@ const taskService = {
 
   async addTask(taskData) {
     try {
-      const response = await axios.post(API_BASE_URL, taskData, { headers: getAuthHeaders() });
+      const token = authService.getToken();
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      const response = await axios.post(API_BASE_URL, taskData, { headers });
       console.log('API Response (addTask):', response.data); // Debugging
       return response.data;
     } catch (error) {
@@ -38,7 +38,9 @@ const taskService = {
 
   async getTaskById(id) {
     try {
-      const response = await axios.get(`${API_BASE_URL}/${id}`, { headers: getAuthHeaders() });
+      const token = authService.getToken();
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      const response = await axios.get(`${API_BASE_URL}/${id}`, { headers });
       console.log('API Response (getTaskById):', response.data); // Debugging
       return response.data;
     } catch (error) {
@@ -49,7 +51,9 @@ const taskService = {
 
   async updateTask(id, taskData) {
     try {
-      const response = await axios.put(`${API_BASE_URL}/${id}`, taskData, { headers: getAuthHeaders() });
+      const token = authService.getToken();
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      const response = await axios.put(`${API_BASE_URL}/${id}`, taskData, { headers });
       console.log('API Response (updateTask):', response.data); // Debugging
       return response.data;
     } catch (error) {
@@ -60,7 +64,9 @@ const taskService = {
 
   async deleteTask(id) {
     try {
-      const response = await axios.delete(`${API_BASE_URL}/${id}`, { headers: getAuthHeaders() });
+      const token = authService.getToken();
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      const response = await axios.delete(`${API_BASE_URL}/${id}`, { headers });
       console.log('API Response (deleteTask):', response.data); // Debugging
       return response.data;
     } catch (error) {
